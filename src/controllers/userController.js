@@ -1,8 +1,14 @@
-const User = require('../models/userModel');
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
+require('dotenv').config(); // Load environment variables from .env file
 
-// User registration
+const User = require('../models/userModel');
+const bcrypt = require('bcrypt'); // Library for hashing passwords
+const jwt = require('jsonwebtoken'); // Library for generating JSON Web Tokens (JWT)
+
+/**
+ * Register a new user.
+ * - Validates if the username already exists.
+ * - Hashes the password before saving it to the database.
+ */
 exports.registerUser = async (req, res) => {
   try {
     const { username, password } = req.body;
@@ -26,7 +32,11 @@ exports.registerUser = async (req, res) => {
   }
 };
 
-// User login
+/**
+ * Log in a user.
+ * - Validates username and password.
+ * - Generates a JWT token if credentials are correct.
+ */
 exports.loginUser = async (req, res) => {
   try {
     const { username, password } = req.body;
@@ -43,8 +53,8 @@ exports.loginUser = async (req, res) => {
       return res.status(401).json({ message: 'Invalid username or password' });
     }
 
-    // Generate a JSON Web Token (JWT)
-    const token = jwt.sign({ username: existingUser.username }, '5d49a8a51cd7aca4743cebcccf5aad5569152d45fele721fea42fa431251d882', { expiresIn: '1h' });
+    // Generate a JWT token
+    const token = jwt.sign({ username: existingUser.username }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
     return res.status(200).json({ token });
   } catch (error) {
@@ -52,7 +62,10 @@ exports.loginUser = async (req, res) => {
   }
 };
 
-// User profile management
+/**
+ * Update a user's profile.
+ * - Allows updating the username.
+ */
 exports.updateUserProfile = async (req, res) => {
   try {
     const { username } = req.params;
