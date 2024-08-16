@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  # MongoDB service
+  mongodb:
+    image: mongo:6.0
+    container_name: mongodb
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${DB_USER}
+      - MONGO_INITDB_ROOT_PASSWORD=${DB_PASS}
+    volumes:
+      - mongodb-data:/data/db
+    ports:
+      - '27018:27018'
+
+  # Node.js application service
+  app:
+    build: .
+    container_name: node-app
+    environment:
+      - MONGO_URI=mongodb://mongodb:27018
+      - DB_USER=${DB_USER}
+      - DB_PASS=${DB_PASS}
+      - JWT_SECRET=${JWT_SECRET}
+      - PORT=3000
+    ports:
+      - '3000:3000'
+    depends_on:
+      - mongodb
+    volumes:
+      - .:/app
+    command: node src/index.js
+
+volumes:
+  mongodb-data:
